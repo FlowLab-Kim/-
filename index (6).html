@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flow Lab | 블루법률사무소 전용 포털</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0F2A4A;--navy-mid:#1A3D6B;--mint:#2ABFAD;--mint-light:#E6F9F7;--mint-mid:#A8EDE7;--gray-50:#F8FAFB;--gray-100:#F0F4F7;--gray-200:#E2E8ED;--gray-400:#8FA0AE;--gray-500:#5A7080;--text-main:#1A2B3C;--text-sub:#5A7080;--border:#E2E8ED;--sh-sm:0 1px 4px rgba(15,42,74,.06);--sh-md:0 4px 20px rgba(15,42,74,.10);--sh-lg:0 12px 48px rgba(15,42,74,.14);--r:14px;--rs:8px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Pretendard",sans-serif;background:var(--gray-50);color:var(--text-main);min-height:100vh}
+.screen{display:none;min-height:100vh}
+.screen.active{display:flex}
+#loginScreen{align-items:center;justify-content:center;background:linear-gradient(145deg,#F0F6FF,#E8F5F3,#F5F8FA);position:relative;overflow:hidden}
+#loginScreen::before{content:"";position:absolute;width:600px;height:600px;background:radial-gradient(circle,rgba(42,191,173,.08),transparent 70%);top:-100px;right:-100px}
+.login-card{background:#fff;border-radius:24px;box-shadow:var(--sh-lg);padding:52px 48px;width:420px;position:relative;z-index:1}
+.login-logo{margin-bottom:36px}
+.login-badge{display:inline-flex;align-items:center;gap:6px;background:var(--mint-light);border:1px solid var(--mint-mid);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--mint);margin-bottom:24px}
+.login-badge::before{content:"";width:6px;height:6px;background:var(--mint);border-radius:50%}
+.login-title{font-size:26px;font-weight:700;margin-bottom:6px;letter-spacing:-.5px}
+.login-sub{font-size:14px;color:var(--text-sub);margin-bottom:36px;line-height:1.6}
+.input-group{margin-bottom:16px}
+.input-label{display:block;font-size:12px;font-weight:600;color:var(--gray-500);margin-bottom:8px;letter-spacing:.4px;text-transform:uppercase}
+.input-wrap{position:relative}
+.input-wrap input{width:100%;padding:14px 48px 14px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-size:15px;font-family:inherit;background:var(--gray-50);color:var(--text-main);outline:none;transition:all .2s}
+.input-wrap input:focus{border-color:var(--mint);background:#fff;box-shadow:0 0 0 3px rgba(42,191,173,.1)}
+.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--gray-400)}
+.login-error{background:#FFF3F3;border:1px solid #FFCDD2;border-radius:var(--rs);padding:10px 14px;font-size:13px;color:#D32F2F;margin-bottom:16px;display:none}
+.btn-login{width:100%;padding:15px;background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;margin-top:8px}
+.btn-login:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(15,42,74,.25)}
+.login-footer{margin-top:28px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--gray-400)}
+#portalScreen{flex-direction:column}
+.topnav{background:#fff;border-bottom:1px solid var(--border);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh-sm)}
+.nav-left{display:flex;align-items:center;gap:20px}
+.nav-logo{display:flex;align-items:center;text-decoration:none}
+.nav-div{width:1px;height:20px;background:var(--border)}
+.nav-client{font-size:13px;font-weight:500;color:var(--text-sub)}
+.nav-client b{color:var(--text-main);font-weight:600}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-badge{display:flex;align-items:center;gap:5px;background:var(--mint-light);border:1px solid var(--mint-mid);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:600;color:var(--mint)}
+.nav-badge::before{content:"";width:6px;height:6px;background:var(--mint);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-logout{background:none;border:1.5px solid var(--border);border-radius:var(--rs);padding:7px 14px;font-size:13px;font-weight:500;color:var(--gray-500);cursor:pointer;font-family:inherit;transition:all .2s}
+.portal-body{display:flex;flex:1}
+.sidebar{width:220px;background:#fff;border-right:1px solid var(--border);padding:20px 0;flex-shrink:0}
+.sb-lbl{display:block;font-size:10px;font-weight:700;color:var(--gray-400);letter-spacing:1px;text-transform:uppercase;padding:14px 20px 6px}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:14px;font-weight:500;color:var(--gray-500);cursor:pointer;transition:all .15s;border-left:3px solid transparent;text-decoration:none}
+.sb-item:hover{background:var(--gray-50);color:var(--text-main)}
+.sb-item.on{background:var(--mint-light);color:var(--mint);border-left-color:var(--mint);font-weight:600}
+.sb-item svg{width:16px;height:16px;flex-shrink:0}
+.main-area{flex:1;padding:32px;overflow-y:auto;background:var(--gray-50)}
+.pg-head{margin-bottom:28px}
+.pg-title{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.pg-sub{font-size:14px;color:var(--text-sub);margin-top:4px}
+.cards-row{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:#fff;border-radius:var(--r);padding:24px;border:1px solid var(--border);box-shadow:var(--sh-sm)}
+.stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.stat-lbl{font-size:12px;font-weight:600;color:var(--text-sub)}
+.stat-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.stat-ico svg{width:18px;height:18px}
+.stat-num{font-size:32px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.stat-hint{font-size:12px;color:var(--text-sub)}
+.stat-hint.up{color:var(--mint)}
+.sec{background:#fff;border-radius:var(--r);border:1px solid var(--border);box-shadow:var(--sh-sm);overflow:hidden;margin-bottom:20px}
+.sec-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sec-title{font-size:15px;font-weight:700}
+.sec-link{font-size:13px;color:var(--mint);font-weight:600;text-decoration:none}
+.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 24px}
+.tab-btn{padding:14px 18px;font-size:13px;font-weight:500;color:var(--text-sub);cursor:pointer;border:none;border-bottom:2px solid transparent;margin-bottom:-1px;background:none;font-family:inherit;transition:all .15s}
+.tab-btn.on{color:var(--navy);border-bottom-color:var(--navy);font-weight:700}
+.tab-pane{display:none}
+.tab-pane.on{display:block}
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{padding:12px 16px;font-size:11px;font-weight:700;color:var(--gray-400);text-align:left;letter-spacing:.5px;text-transform:uppercase;background:var(--gray-50);border-bottom:1px solid var(--border)}
+td{padding:14px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--gray-50)}
+.bdg{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.bdg::before{content:"";width:5px;height:5px;border-radius:50%}
+.b1{background:#EBF8FF;color:#1A6FA8}.b1::before{background:#1A9FE0}
+.b2{background:#FFF8E6;color:#B8860B}.b2::before{background:#F0A500}
+.b3{background:#E8F8F0;color:#1A7A4A}.b3::before{background:#2DBF6A}
+.b4{background:var(--gray-100);color:var(--gray-500)}.b4::before{background:var(--gray-400)}
+.btn-s{padding:6px 12px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+.btn-mint{background:var(--mint-light);color:var(--mint)}
+.qa-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.qa-card{background:#fff;border:1.5px solid var(--border);border-radius:var(--r);padding:24px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:12px;text-decoration:none}
+.qa-card:hover{border-color:var(--mint);box-shadow:var(--sh-md);transform:translateY(-2px)}
+.qa-ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.qa-ico svg{width:22px;height:22px}
+.qa-title{font-size:14px;font-weight:700;color:var(--text-main)}
+.qa-desc{font-size:12px;color:var(--text-sub);line-height:1.5}
+.up-area{border:2px dashed var(--border);border-radius:var(--r);padding:48px 32px;text-align:center;background:var(--gray-50);transition:all .2s;text-decoration:none;display:block}
+.up-area:hover{border-color:var(--mint);background:var(--mint-light)}
+.up-ico{font-size:40px;margin-bottom:12px}
+.up-title{font-size:16px;font-weight:700;margin-bottom:6px}
+.up-desc{font-size:13px;color:var(--text-sub)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.dc{display:flex;align-items:center;gap:16px;padding:20px 24px;border-bottom:1px solid var(--border);text-decoration:none;transition:background .15s}
+.dc:last-child{border-bottom:none}
+.dc:hover{background:var(--gray-50)}
+.dc-ico{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.dc-title{font-size:14px;font-weight:700;color:var(--text-main);margin-bottom:3px}
+.dc-desc{font-size:12px;color:var(--text-sub)}
+.dc-arr{color:var(--gray-200);font-size:18px;margin-left:auto}
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,42,74,.35);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center}
+.overlay.on{display:flex}
+.memo-box{background:#fff;border-radius:20px;width:680px;max-height:80vh;box-shadow:var(--sh-lg);overflow:hidden;display:flex;flex-direction:column}
+.memo-hd{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.memo-ttl{font-size:17px;font-weight:700}
+.memo-stl{font-size:13px;color:var(--text-sub);margin-top:4px}
+.memo-x{width:32px;height:32px;border-radius:50%;background:var(--gray-100);border:none;cursor:pointer;font-size:18px;color:var(--gray-500)}
+.memo-body{padding:24px 28px;overflow-y:auto;flex:1}
+.memo-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.memo-item{background:var(--gray-50);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px}
+.memo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.memo-dt{font-size:11px;color:var(--gray-400);font-weight:500}
+.memo-tp{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--mint-light);color:var(--mint)}
+.memo-ct{font-size:13px;line-height:1.6}
+.memo-new{border-top:1px solid var(--border);padding-top:20px}
+.memo-nl{font-size:12px;font-weight:700;color:var(--text-sub);margin-bottom:10px;text-transform:uppercase;letter-spacing:.3px}
+.chips{display:flex;gap:8px;margin-bottom:12px}
+.chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;background:none;font-family:inherit;transition:all .15s}
+.chip.on{background:var(--mint-light);border-color:var(--mint);color:var(--mint)}
+.memo-ta{width:100%;height:90px;border:1.5px solid var(--border);border-radius:var(--rs);padding:12px 14px;font-size:13px;font-family:inherit;resize:none;outline:none;background:var(--gray-50);line-height:1.6;transition:all .2s}
+.memo-ta:focus{border-color:var(--mint);background:#fff;box-shadow:0 0 0 3px rgba(42,191,173,.1)}
+.memo-sr{display:flex;justify-content:flex-end;margin-top:10px}
+.btn-save{background:linear-gradient(135deg,var(--navy),var(--navy-mid));color:#fff;border:none;border-radius:var(--rs);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.sync-n{background:linear-gradient(135deg,#EBF8FF,#E8F8F0);border:1px solid var(--mint-mid);border-radius:var(--rs);padding:12px 16px;font-size:12px;color:var(--text-sub);display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.sync-n a{color:var(--mint);font-weight:600;text-decoration:none}
+.memo-extras{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.memo-extra{font-size:11px;color:var(--text-sub);background:var(--gray-100);padding:2px 8px;border-radius:6px}
+.memo-extra b{color:var(--text-main);font-weight:600;margin-right:3px}
+.case-link{color:var(--mint);font-weight:600;cursor:pointer;font-size:13px}
+.tbl-search-bar{padding:12px 16px;border-bottom:1px solid var(--border);background:var(--gray-50)}
+.tbl-search-wrap{display:none;align-items:center;gap:8px}
+.tbl-search-wrap.active{display:flex}
+.tbl-search-input{flex:1;border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 12px;font-size:13px;font-family:inherit;background:#fff;outline:none;color:var(--text-main);transition:all .2s}
+.td-unpaid{background:#FFFDE7;color:#D32F2F;font-weight:700;}
+.tbl-search-input:focus{border-color:var(--mint);box-shadow:0 0 0 3px rgba(42,191,173,.1)}
+.tbl-search-btn{padding:8px 16px;background:var(--navy);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.tbl-search-btn:hover{opacity:.85}
+.mobile-upload-btn{display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:150;background:linear-gradient(135deg,var(--mint),#1fa898);color:#fff;border:none;border-radius:50px;padding:14px 28px;font-size:15px;font-weight:700;font-family:inherit;box-shadow:0 6px 24px rgba(42,191,173,.45);cursor:pointer;align-items:center;gap:8px;white-space:nowrap;text-decoration:none}
+@media(max-width:768px){.mobile-upload-btn{display:flex}}
+.memo-inline-ct{font-size:12px;color:var(--text-sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+.memo-more{font-size:10px;font-weight:700;color:var(--mint);background:var(--mint-light);padding:1px 5px;border-radius:8px;white-space:nowrap}
+.memo-empty{font-size:12px;color:var(--gray-400);cursor:pointer;vertical-align:middle}
+.mo-cell{white-space:nowrap}
+
+.sync-n a{color:var(--mint);font-weight:600;text-decoration:none}
+.sh-loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-sub);font-size:13px;gap:8px}
+.sh-err{display:flex;align-items:center;justify-content:center;flex-direction:column;padding:32px;color:var(--text-sub);font-size:13px;gap:8px;text-align:center}
+.sh-err a{color:var(--mint);font-weight:600;text-decoration:none}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--mint);border-radius:50%;animation:sp .7s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.float-wrap{position:fixed;bottom:28px;right:28px;display:none;flex-direction:column;gap:12px;z-index:300}
+.fi{position:relative;display:flex;align-items:center}
+.fi-tip{position:absolute;right:62px;background:var(--navy);color:#fff;font-size:12px;font-weight:600;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .2s}
+.fi:hover .fi-tip{opacity:1}
+.fb{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 4px 16px rgba(0,0,0,.18);transition:all .2s}
+.fb:hover{transform:translateY(-3px)}
+.fk{background:#FEE500}
+.fp{background:var(--navy)}
+.fw7{font-weight:700}
+.tc-mint{color:var(--mint)}
+</style>
+</head>
+<body>
+<div id="loginScreen" class="screen active">
+  <div class="login-card">
+    <div class="login-logo">
+      <svg width="140" height="38" viewBox="0 0 260 72" fill="none">
+        <circle cx="36" cy="36" r="32" stroke="#0F2A4A" stroke-width="4"/>
+        <rect x="14" y="38" width="10" height="18" rx="2" fill="#0F2A4A"/>
+        <rect x="27" y="30" width="10" height="26" rx="2" fill="#0F2A4A"/>
+        <rect x="40" y="22" width="10" height="34" rx="2" fill="#0F2A4A"/>
+        <polyline points="16,40 27,28 40,34 54,18" stroke="#2ABFAD" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="16" cy="40" r="3.5" fill="#2ABFAD"/><circle cx="27" cy="28" r="3.5" fill="#2ABFAD"/>
+        <circle cx="40" cy="34" r="3.5" fill="#2ABFAD"/><circle cx="54" cy="18" r="3.5" fill="#2ABFAD"/>
+        <text x="80" y="48" font-family="sans-serif" font-weight="700" font-size="28" fill="#0F2A4A">Flow Lab</text>
+      </svg>
+    </div>
+    <div class="login-badge">블루법률사무소 전용 포털</div>
+    <div class="login-title">안녕하세요!</div>
+    <p class="login-sub">전용 비밀번호를 입력하시면<br>실시간 사건 현황을 확인하실 수 있습니다.</p>
+    <div class="input-group">
+      <label class="input-label">비밀번호</label>
+      <div class="input-wrap">
+        <input type="password" id="pwInput" placeholder="전용 비밀번호 입력">
+        <button class="eye-btn" id="eyeBtn">&#128065;</button>
+      </div>
+    </div>
+    <div class="login-error" id="loginErr">비밀번호가 올바르지 않습니다.</div>
+    <button class="btn-login" id="loginBtn">포털 접속하기</button>
+    <div class="login-footer"><p>비밀번호 문의: 카카오톡 채널로 연락해 주세요.</p></div>
+  </div>
+</div>
+<div id="portalScreen" class="screen">
+  <div style="display:flex;flex-direction:column;width:100%">
+    <nav class="topnav">
+      <div class="nav-left">
+        <a class="nav-logo" href="#"><svg width="90" height="26" viewBox="0 0 260 72" fill="none"><circle cx="36" cy="36" r="32" stroke="#0F2A4A" stroke-width="4"/><rect x="14" y="38" width="10" height="18" rx="2" fill="#0F2A4A"/><rect x="27" y="30" width="10" height="26" rx="2" fill="#0F2A4A"/><rect x="40" y="22" width="10" height="34" rx="2" fill="#0F2A4A"/><polyline points="16,40 27,28 40,34 54,18" stroke="#2ABFAD" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="16" cy="40" r="3.5" fill="#2ABFAD"/><circle cx="27" cy="28" r="3.5" fill="#2ABFAD"/><circle cx="40" cy="34" r="3.5" fill="#2ABFAD"/><circle cx="54" cy="18" r="3.5" fill="#2ABFAD"/><text x="80" y="48" font-family="sans-serif" font-weight="700" font-size="28" fill="#0F2A4A">Flow Lab</text></svg></a>
+        <div class="nav-div"></div>
+        <span class="nav-client">고객사: <b>블루법률사무소</b></span>
+      </div>
+      <div class="nav-right">
+        <div class="nav-badge">구글 시트 연동</div>
+        <button class="btn-logout" id="logoutBtn">로그아웃</button>
+      </div>
+    </nav>
+    <div class="portal-body">
+      <aside class="sidebar">
+        <span class="sb-lbl">메인</span>
+        <div class="sb-item on" data-p="dashboard"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>대시보드</div>
+        <span class="sb-lbl">자료 관리</span>
+        <div class="sb-item" data-p="upload"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>자료 업로드</div>
+        <div class="sb-item" data-p="download"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>결과물 수령</div>
+        <div class="sb-item" data-p="reference"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>공통양식 및 참고서류</div>
+      </aside>
+      <main class="main-area">
+        <div id="pg-dashboard">
+          <div class="pg-head"><div class="pg-title">사건 현황 대시보드</div><div class="pg-sub">블루법률사무소의 실시간 사건 진행 상황을 확인하세요.</div></div>
+          <div class="cards-row">
+            <div class="stat-card"><div class="stat-top"><span class="stat-lbl">보정 관리</span><div class="stat-ico" style="background:#EBF5FF"><svg viewBox="0 0 24 24" fill="none" stroke="#1A6FA8" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div></div><div class="stat-num" id="sTotal">-</div><div class="stat-hint up">보정대응현황 전체 건수</div></div>
+            <div class="stat-card"><div class="stat-top"><span class="stat-lbl">수임료 관리</span><div class="stat-ico" style="background:#FFF8E6"><svg viewBox="0 0 24 24" fill="none" stroke="#B8860B" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg></div></div><div class="stat-num" id="sCorr">-</div><div class="stat-hint">수임료관리 전체 건수</div></div>
+            <div class="stat-card"><div class="stat-top"><span class="stat-lbl">이번달 보정완료</span><div class="stat-ico" style="background:#E8F8F0"><svg viewBox="0 0 24 24" fill="none" stroke="#1A7A4A" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div></div><div class="stat-num" id="sDone">-</div><div class="stat-hint up">보정대응현황 제출완료 건수</div></div>
+          </div>
+          <div class="sec">
+            <div class="sec-head"><span class="sec-title">사건 현황 상세</span></div>
+            <div class="tab-bar">
+              <button class="tab-btn on" data-t="t1">보정 대응 현황</button>
+              <button class="tab-btn" data-t="t2">수임료 관리</button>
+              <button class="tab-btn" data-t="t3">사건 진행 현황</button>
+            </div>
+            <div class="tab-pane on" id="t1"><div class="tbl-search-bar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="tbl-search-input" id="search-t1" placeholder="의뢰인명 또는 사건번호 검색..."><button class="tbl-search-btn" onclick="filterTbl('t1')">검색</button></div><div class="sh-loading"><span class="spin"></span> 불러오는 중...</div></div>
+            <div class="tab-pane" id="t2"><div class="tbl-search-bar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="tbl-search-input" id="search-t2" placeholder="의뢰인명 또는 사건번호 검색..."><button class="tbl-search-btn" onclick="filterTbl('t2')">검색</button></div><div class="sh-loading"><span class="spin"></span> 불러오는 중...</div></div>
+            <div class="tab-pane" id="t3"><div class="tbl-search-bar"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input class="tbl-search-input" id="search-t3" placeholder="의뢰인명 또는 사건번호 검색..."><button class="tbl-search-btn" onclick="filterTbl('t3')">검색</button></div><div class="sh-loading"><span class="spin"></span> 불러오는 중...</div></div>
+          </div>
+          <div class="qa-grid">
+            <div class="qa-card" data-p="upload"><div class="qa-ico" style="background:#EBF8FF"><svg viewBox="0 0 24 24" fill="none" stroke="#1A6FA8" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div><div class="qa-title">자료 업로드</div><div class="qa-desc">새로운 의뢰 자료를 구글 드라이브에 안전하게 전송합니다.</div></div>
+            <div class="qa-card" data-p="download"><div class="qa-ico" style="background:#E8F8F0"><svg viewBox="0 0 24 24" fill="none" stroke="#1A7A4A" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></div><div class="qa-title">결과물 수령</div><div class="qa-desc">플로우랩이 완성한 분석 자료와 패키지를 다운로드 받으세요.</div></div>
+          </div>
+        </div>
+        <div id="pg-upload" style="display:none">
+          <div class="pg-head"><div class="pg-title">자료 업로드</div><div class="pg-sub">구글 폼 및 드라이브를 통해 의뢰 자료를 안전하게 전송합니다.</div></div>
+          <div class="g2" style="margin-bottom:20px">
+            <div class="sec"><div class="sec-head"><span class="sec-title">신규 의뢰 접수</span></div><div style="padding:24px"><a class="up-area" href="https://docs.google.com/forms/d/e/1FAIpQLSfXPtlM2uAmsK3aL-mS6hwBZJj1NexPYpXiK0ElG1N-45FY7w/viewform" target="_blank"><div class="up-ico">&#128203;</div><div class="up-title">의뢰서 작성하기</div><div class="up-desc">클릭하면 전용 구글 폼이 열립니다.</div></a></div></div>
+            <div class="sec"><div class="sec-head"><span class="sec-title">추가 자료 전송</span></div><div style="padding:24px"><a class="up-area" href="https://drive.google.com/drive/folders/1-04cFQJsokAKTJeFavSozzUAnCye-3Mx" target="_blank"><div class="up-ico">&#128193;</div><div class="up-title">자료 업로드 드라이브</div><div class="up-desc">추가 자료를 드라이브에 올려주세요.</div></a></div></div>
+          </div>
+        </div>
+        <div id="pg-download" style="display:none">
+          <div class="pg-head"><div class="pg-title">결과물 수령</div><div class="pg-sub">완성된 분석 패키지를 구글 드라이브에서 다운로드 받으세요.</div></div>
+          <div class="sec"><div class="sec-head"><span class="sec-title">결과물 드라이브</span><a href="https://drive.google.com/drive/folders/1CD4OSIXz4_0gBxMF-9bag2kvM0OCj3z3" target="_blank" class="sec-link">드라이브 전체 보기</a></div><a class="dc" href="https://drive.google.com/drive/folders/1CD4OSIXz4_0gBxMF-9bag2kvM0OCj3z3" target="_blank"><div class="dc-ico" style="background:#E8F8F0">&#128229;</div><div><div class="dc-title">결과물 수령 폴더</div><div class="dc-desc">플로우랩이 완료한 분석 패키지, 보고서가 저장됩니다.</div></div><div class="dc-arr">&#8594;</div></a></div>
+        </div>
+        <div id="pg-reference" style="display:none">
+          <div class="pg-head"><div class="pg-title">공통양식 및 참고서류</div><div class="pg-sub">자주 사용하는 양식과 참고 자료를 확인하세요.</div></div>
+          <div class="sec">
+            <div class="sec-head"><span class="sec-title">공통양식 드라이브</span><a href="https://drive.google.com/drive/folders/1FBCwzVHE0Ru_qq2-Au2r_zX1tSxDHAK2" target="_blank" class="sec-link">전체 보기</a></div>
+            <a class="dc" href="https://drive.google.com/drive/folders/1FBCwzVHE0Ru_qq2-Au2r_zX1tSxDHAK2" target="_blank"><div class="dc-ico" style="background:#EBF5FF">&#128194;</div><div><div class="dc-title">공통양식 및 참고서류 폴더</div><div class="dc-desc">개인회생 파산 공통 양식, 서류 작성 가이드.</div></div><div class="dc-arr">&#8594;</div></a>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+</div>
+<a class="mobile-upload-btn" id="mobileUploadBtn" href="https://docs.google.com/forms/d/e/1FAIpQLSfXPtlM2uAmsK3aL-mS6hwBZJj1NexPYpXiK0ElG1N-45FY7w/viewform" target="_blank">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  자료 업로드하기
+</a>
+<div class="float-wrap" id="floatWrap">
+  <div class="fi"><div class="fi-tip">카카오톡 문의</div><a class="fb fk" href="https://pf.kakao.com/_AyrQn/chat" target="_blank"><svg width="26" height="26" viewBox="0 0 40 40" fill="none"><path d="M20 5C11.163 5 4 10.82 4 18c0 4.694 2.97 8.83 7.5 11.23L10 35l6.17-3.29C17.4 31.9 18.68 32 20 32c8.837 0 16-5.82 16-13S28.837 5 20 5z" fill="#3A1D1D"/></svg></a></div>
+  <div class="fi"><div class="fi-tip">010-4466-7641</div><a class="fb fp" href="tel:01044667641"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.1 1.18 2 2 0 012.11 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a></div>
+</div>
+<div class="overlay" id="memoOverlay">
+  <div class="memo-box">
+    <div class="memo-hd"><div><div class="memo-ttl" id="memoLbl">접촉이력</div><div class="memo-stl">구글 시트 접촉이력 탭 연동</div></div><button class="memo-x" id="memoX">✕</button></div>
+    <div class="memo-body">
+      <div class="sync-n" id="contactSyncNote" style="display:none"></div>
+      <div class="memo-list" id="memoList"><div class="sh-loading"><span class="spin"></span> 불러오는 중...</div></div>
+    </div>
+  </div>
+</div>
+<script>
+var tblData={t1:null,t2:null,t3:null};
+
+function bdg(s){var k=(s||"").trim();var m={"진행중":"b1","분납중":"b1","보정대응":"b2","납부예정":"b2","완료":"b3","완납":"b3","접수대기":"b4"};return "<span class='bdg "+(m[k]||"b4")+"'>"+k+"</span>";}
+
+function _renderTbl(rows,id,addMemo,kw){
+  var pane=document.getElementById(id);
+  var loading=pane.querySelector(".sh-loading");
+  if(loading)loading.remove();
+  var el=pane.querySelector(".tbl-result");
+  if(!el){el=document.createElement("div");el.className="tbl-result";pane.appendChild(el);}
+  if(!rows||rows.length<2){el.innerHTML="<div class='sh-err'>데이터가 없습니다.</div>";return;}
+  var hd=rows[0];
+  var allDt=rows.slice(1).filter(function(r){return r.some(function(c){return String(c||"").trim();});});
+  var memoCol=hd.findIndex(function(h){return String(h).trim()==="접촉이력";});
+  var nameCol=hd.findIndex(function(h){return String(h).trim()==="의뢰인명";});
+  var caseCol=hd.findIndex(function(h){return /사건\s*번호|사건번/.test(String(h));});
+  var unpaidCol=hd.findIndex(function(h){return String(h).trim()==="미납회차";});
+  var colCount=hd.filter(function(_,i){return i!==memoCol;}).length+(addMemo?1:0);
+  var dt=kw?allDt.filter(function(r){
+    var nm=nameCol>=0?String(r[nameCol]||"").toLowerCase():"";
+    var cn=caseCol>=0?String(r[caseCol]||"").toLowerCase():"";
+    return nm.indexOf(kw)>=0||cn.indexOf(kw)>=0;
+  }):allDt;
+  var sc=hd.reduce(function(a,h,i){if(/상태|진행|단계|완납|납부/.test(String(h)))a.push(i);return a;},[]);
+  var h="<div class='tbl-wrap'><table><thead><tr>";
+  hd.forEach(function(x,i){if(i!==memoCol)h+="<th>"+x+"</th>";});
+  if(addMemo)h+="<th>접촉이력</th>";
+  h+="</tr></thead><tbody>";
+  if(!dt.length){
+    h+="<tr><td colspan='"+colCount+"' style='text-align:center;padding:32px;color:var(--text-sub);font-size:13px'>검색 결과가 없습니다.</td></tr>";
+  } else {
+    dt.forEach(function(row){
+      var nm=nameCol>=0?String(row[nameCol]||"").trim():String(row[0]||"");
+      var memoVal=memoCol>=0?String(row[memoCol]||"").trim():"";
+      h+="<tr>";
+      row.forEach(function(c,i){
+        if(i===memoCol)return;
+        var s=String(c==null?"":c);
+        if(sc.indexOf(i)>=0)h+="<td>"+bdg(s)+"</td>";
+        else if(i===unpaidCol&&s.trim()){
+          // 미납회차: 숫자가 1 이상이면 노란배경+빨간글자
+          var num=parseFloat(s.replace(/[^0-9.]/g,""));
+          if(!isNaN(num)&&num>=1)h+="<td class='td-unpaid'>"+s+"</td>";
+          else h+="<td>"+s+"</td>";
+        }
+        else if(/^\d{1,3}(,\d{3})*(원)?$/.test(s.trim()))h+="<td class='tc-mint fw7'>"+s+"</td>";
+        else h+="<td>"+s+"</td>";
+      });
+      if(addMemo){
+        var enc=encodeURIComponent(memoVal);
+        h+="<td><button class='btn-s btn-mint mo-btn' data-n='"+nm+"' data-m='"+enc+"'>메모 보기</button></td>";
+      }
+      h+="</tr>";
+    });
+  }
+  h+="</tbody></table></div>";
+  el.innerHTML=h;
+  if(addMemo){
+    el.querySelectorAll(".mo-btn").forEach(function(b){
+      b.onclick=function(){openMemo(b.dataset.n,decodeURIComponent(b.dataset.m));};
+    });
+  }
+}
+
+function filterTbl(id){
+  var inp=document.getElementById("search-"+id);
+  var kw=inp?inp.value.trim().toLowerCase():"";
+  if(tblData[id])_renderTbl(tblData[id],id,true,kw);
+}
+
+(function(){
+var PW="blue2026";
+var API="https://script.google.com/macros/s/AKfycbxQ9tC-9TOVazGgkIr2R9o9ZBeHL_bwukuXHPLodb847GTv_VSL1NgRgxn2La709X35Yw/exec";
+
+document.getElementById("eyeBtn").onclick=function(){var e=document.getElementById("pwInput");e.type=e.type==="password"?"text":"password";};
+function doLogin(){var v=document.getElementById("pwInput").value;if(v===PW){document.getElementById("loginErr").style.display="none";document.getElementById("loginScreen").classList.remove("active");document.getElementById("portalScreen").classList.add("active");document.getElementById("floatWrap").style.display="flex";document.getElementById("mobileUploadBtn").style.display="flex";loadSheets();}else{document.getElementById("loginErr").style.display="block";document.getElementById("pwInput").value="";}}
+document.getElementById("loginBtn").onclick=doLogin;
+document.getElementById("pwInput").onkeydown=function(e){if(e.key==="Enter")doLogin();};
+document.getElementById("logoutBtn").onclick=function(){if(!confirm("로그아웃 하시겠습니까?"))return;document.getElementById("portalScreen").classList.remove("active");document.getElementById("loginScreen").classList.add("active");document.getElementById("floatWrap").style.display="none";document.getElementById("pwInput").value="";};
+
+function goPage(n){["dashboard","upload","download","reference"].forEach(function(p){document.getElementById("pg-"+p).style.display=p===n?"block":"none";});document.querySelectorAll(".sb-item[data-p]").forEach(function(el){el.classList.toggle("on",el.dataset.p===n);});}
+document.querySelectorAll("[data-p]").forEach(function(el){el.onclick=function(){goPage(el.dataset.p);};});
+document.querySelectorAll(".tab-btn").forEach(function(btn){btn.onclick=function(){
+  document.querySelectorAll(".tab-btn").forEach(function(b){b.classList.remove("on");});
+  document.querySelectorAll(".tab-pane").forEach(function(p){p.classList.remove("on");});
+  btn.classList.add("on");
+  document.getElementById(btn.dataset.t).classList.add("on");
+};});
+
+// 검색 엔터키 지원
+document.addEventListener("keydown",function(e){
+  if(e.key==="Enter"&&e.target&&e.target.classList.contains("tbl-search-input")){
+    var id=e.target.id.replace("search-","");
+    filterTbl(id);
+  }
+});
+
+function loadSheets(){
+  [["보정대응현황","t1",true],["수임료관리","t2",true],["사건진행현황","t3",true]].forEach(function(cfg){
+    fetch(API+"?sheet="+encodeURIComponent(cfg[0])).then(function(r){return r.json();}).then(function(rows){
+      tblData[cfg[1]]=rows;
+      _renderTbl(rows,cfg[1],cfg[2]);
+      var d=rows.length>1?rows.slice(1).filter(function(r){return r.some(function(c){return String(c||"").trim();});}):[];
+      if(cfg[0]==="보정대응현황"){
+        document.getElementById("sTotal").textContent=d.length;
+        var now=new Date();var thisY=now.getFullYear();var thisM=now.getMonth()+1;
+        var hdRow=rows[0];var doneCol=hdRow.findIndex(function(h){return String(h).trim()==="완료일";});
+        document.getElementById("sDone").textContent=d.filter(function(r){
+          var hasComplete=r.join("").indexOf("제출완료")>=0;if(!hasComplete)return false;if(doneCol<0)return false;
+          var raw=String(r[doneCol]||"").replace(/\s/g,"").replace(/\.$/,"");var parts=raw.split(".");
+          if(parts.length>=2){var y=parseInt(parts[0]);var m=parseInt(parts[1]);return y===thisY&&m===thisM;}return false;
+        }).length;
+      }
+      if(cfg[0]==="수임료관리"){document.getElementById("sCorr").textContent=d.length;}
+    }).catch(function(){document.getElementById(cfg[1]).innerHTML="<div class='sh-err'>시트 연동 실패 ("+cfg[0]+")<br><a href='https://docs.google.com/spreadsheets/d/1aqhMmyYiiCYtesF9CWMJU-uhdiMIJYzT2acEXQ0QLIo/edit' target='_blank'>시트 확인</a></div>";});
+  });
+}
+
+}());
+
+function openMemo(name, memoText){
+  document.getElementById("memoLbl").textContent=name+" 접촉이력";
+  var el=document.getElementById("memoList");
+  if(!memoText||!memoText.trim()){
+    el.innerHTML="<div style='padding:24px;text-align:center;color:var(--text-sub);font-size:13px'>등록된 접촉이력이 없습니다.</div>";
+  } else {
+    var lines=memoText.split(/\n|\\n/).map(function(l){return l.trim();}).filter(function(l){return l;});
+    el.innerHTML=lines.map(function(line){
+      return "<div class='memo-item'><div class='memo-ct' style='white-space:pre-wrap'>"+line+"</div></div>";
+    }).join("");
+  }
+  document.getElementById("memoOverlay").classList.add("on");
+}
+
+function closeMemo(){document.getElementById("memoOverlay").classList.remove("on");}
+document.getElementById("memoX").onclick=closeMemo;
+document.getElementById("memoOverlay").onclick=function(e){if(e.target===this)closeMemo();};
+</script>
+</body>
+</html>
